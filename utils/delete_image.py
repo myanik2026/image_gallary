@@ -1,11 +1,9 @@
 import os
 
 
-def delete_image(filename, image_list, upload_folder):
+def delete_image(filename, images, upload_folder):
 
-    for i in range(len(image_list)):
-
-        if image_list[i]["title"] == filename:
+    if filename in images:
 
             # Delete physical image file
             filepath = os.path.join(
@@ -17,8 +15,12 @@ def delete_image(filename, image_list, upload_folder):
                 os.remove(filepath)
 
             # Remove image from list
-            image_list.pop(i)
+            del images[filename]
 
             return True
 
     return False
+
+
+
+

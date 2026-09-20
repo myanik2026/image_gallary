@@ -7,6 +7,7 @@ import json
 from utils.delete_image import delete_image
 from utils.search_images import search_images
 from utils.upload_image import upload_image
+from werkzeug.utils import secure_filename
  
 app = Flask(__name__) 
 CORS(app) 
