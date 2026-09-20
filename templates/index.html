@@ -1,221 +1,531 @@
+
 <!DOCTYPE html>
 
 <html lang="en">
 
 <head>
 
-```
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-<title>Image Upload</title>
-
-
-<style>
-
-    body {
-        font-family: Arial, sans-serif;
-        margin: 40px;
-    }
+    <title>Image Upload</title>
 
 
-    h1 {
-        margin-bottom: 20px;
-    }
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
 
 
-    #uploadForm {
-        margin-bottom: 20px;
-    }
+        h1 {
+            margin-bottom: 20px;
+        }
 
 
-    #searchForm {
-        margin-bottom: 30px;
-    }
+        #uploadForm {
+            margin-bottom: 20px;
+        }
 
 
-    #searchInput {
-        padding: 8px;
-        width: 250px;
-    }
+        #searchForm {
+            margin-bottom: 30px;
+        }
 
 
-    #gallery {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        margin-top: 20px;
-    }
+        #searchInput {
+            padding: 8px;
+            width: 250px;
+        }
 
 
-    .image-card {
-        width: 200px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        padding: 10px;
-    }
+        #gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
 
 
-    .image-card img {
-        width: 100%;
-        height: 150px;
-        object-fit: cover;
-        border-radius: 5px;
-    }
+        .image-card {
+            width: 200px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+        }
 
 
-    .image-card p {
-        word-break: break-word;
-    }
+        .image-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
 
 
-    button {
-        padding: 8px 15px;
-        cursor: pointer;
-    }
+        .image-card p {
+            word-break: break-word;
+        }
 
 
-    .delete-btn {
-        margin-top: 10px;
-        width: 100%;
-    }
+        button {
+            padding: 8px 15px;
+            cursor: pointer;
+        }
 
-</style>
-```
+
+        .delete-btn {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+    </style>
 
 </head>
 
+
 <body>
 
-```
-<h1>Upload Image</h1>
+    <h1>Upload Image</h1>
 
 
-<!-- ==========================
-     UPLOAD FORM
-=========================== -->
+    <!-- ==========================
+         UPLOAD FORM
+    =========================== -->
 
-<form id="uploadForm">
+    <form id="uploadForm">
 
-    <input
-        type="file"
-        id="imageInput"
-        name="image"
-        accept="image/png, image/jpeg"
-        required
-    >
+        <input
+            type="file"
+            id="imageInput"
+            name="image"
+            accept="image/png, image/jpeg"
+            required
+        >
 
-    <button type="submit">
-        Upload
-    </button>
+        <button type="submit">
+            Upload
+        </button>
 
-</form>
-
-
-<!-- ==========================
-     SEARCH FORM
-=========================== -->
-
-<form id="searchForm">
-
-    <input
-        type="text"
-        id="searchInput"
-        placeholder="Search image name..."
-    >
-
-    <button type="submit">
-        Search
-    </button>
-
-    <button
-        type="button"
-        id="showAllButton"
-    >
-        Show All
-    </button>
-
-</form>
+    </form>
 
 
-<h2>Gallery</h2>
+    <!-- ==========================
+         SEARCH FORM
+    =========================== -->
+
+    <form id="searchForm">
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search image name..."
+        >
+
+        <button type="submit">
+            Search
+        </button>
+
+        <button
+            type="button"
+            id="showAllButton"
+        >
+            Show All
+        </button>
+
+    </form>
 
 
-<div id="gallery"></div>
+    <h2>Gallery</h2>
 
 
-<script>
+    <div id="gallery"></div>
 
 
-    // ==========================
-    // GET HTML ELEMENTS
-    // ==========================
-
-    const uploadForm =
-        document.getElementById("uploadForm");
-
-    const imageInput =
-        document.getElementById("imageInput");
-
-    const searchForm =
-        document.getElementById("searchForm");
-
-    const searchInput =
-        document.getElementById("searchInput");
-
-    const showAllButton =
-        document.getElementById("showAllButton");
-
-    const gallery =
-        document.getElementById("gallery");
+    <script>
 
 
-    // ==========================
-    // UPLOAD IMAGE
-    // ==========================
+        // ==========================
+        // GET HTML ELEMENTS
+        // ==========================
 
-    uploadForm.addEventListener(
-        "submit",
-        async function (event) {
+        const uploadForm =
+            document.getElementById("uploadForm");
 
-            event.preventDefault();
+        const imageInput =
+            document.getElementById("imageInput");
+
+        const searchForm =
+            document.getElementById("searchForm");
+
+        const searchInput =
+            document.getElementById("searchInput");
+
+        const showAllButton =
+            document.getElementById("showAllButton");
+
+        const gallery =
+            document.getElementById("gallery");
+
+        const filePath = "../static/uploads/"    
 
 
-            const file =
-                imageInput.files[0];
+        // ==========================
+        // UPLOAD IMAGE
+        // ==========================
+
+        uploadForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
 
 
-            if (!file) {
+                const file =
+                    imageInput.files[0];
 
-                alert(
-                    "Please select an image."
+
+                if (!file) {
+
+                    alert(
+                        "Please select an image."
+                    );
+
+                    return;
+                }
+
+
+                // Create FormData
+                const formData =
+                    new FormData();
+
+
+                formData.append(
+                    "image",
+                    file
                 );
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/images",
+                            {
+                                method: "POST",
+                                body: formData
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    // Check response
+                    if (!response.ok) {
+
+                        alert(
+                            data.error ||
+                            "Upload failed."
+                        );
+
+                        return;
+                    }
+
+
+                    // ==========================
+                    // UPLOAD SUCCESS
+                    // No success alert
+                    // ==========================
+
+                    // Clear file input
+                    imageInput.value = "";
+
+
+                    // Refresh gallery
+                    await loadImages();
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Upload error:",
+                        error
+                    );
+
+
+                    alert(
+                        "Upload failed. " +
+                        "Make sure the Flask server is running."
+                    );
+
+                }
+
+            }
+        );
+
+
+        // ==========================
+        // LOAD ALL IMAGES
+        // ==========================
+
+        async function loadImages() {
+
+            try {
+
+                const response =
+                    await fetch("/images");
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Failed to load images: " +
+                        response.status
+                    );
+
+                }
+
+
+                const images =
+                    await response.json();
+
+
+                // Display images
+                displayImages(images);
+
+
+            } catch (error) {
+
+                console.error(
+                    "Gallery error:",
+                    error
+                );
+
+
+                gallery.innerHTML =
+                    "<p>Unable to load images.</p>";
+
+            }
+
+        }
+
+
+        // ==========================
+        // DISPLAY IMAGES
+        // ==========================
+
+        function displayImages(images) {
+
+            // Clear gallery
+            gallery.innerHTML = "";
+
+
+            // No images
+            if (Object.keys(images).length === 0) {
+
+                gallery.innerHTML =
+                    "<p>No images found.</p>";
 
                 return;
             }
 
 
-            // Create FormData
-            const formData =
-                new FormData();
+            // Display images
+            Object.values(images).forEach(function (image) {
 
 
-            formData.append(
-                "image",
-                file
-            );
+                const card =
+                    document.createElement("div");
+
+
+                card.className =
+                    "image-card";
+
+
+                // Image
+                const img =
+                    document.createElement("img");
+
+
+                img.src = `${filePath}` + image.filename;
+
+
+                img.alt =
+                    image.filename;
+
+
+                // Title
+                const title =
+                    document.createElement("p");
+
+
+                title.textContent =
+                    image.filename.split(".")[0];
+
+
+                // Delete button
+                const deleteButton =
+                    document.createElement("button");
+
+
+                deleteButton.textContent =
+                    "Delete";
+
+
+                deleteButton.className =
+                    "delete-btn";
+
+
+                // Delete button click
+                deleteButton.addEventListener(
+                    "click",
+                    function () {
+
+                        deleteImage(
+                            image.title
+                        );
+
+                    }
+                );
+
+
+                // Add elements
+                card.appendChild(title);
+                card.appendChild(img);
+                card.appendChild(
+                    deleteButton
+                );
+
+
+                // Add card
+                gallery.appendChild(card);
+
+            });
+
+        }
+
+
+        // ==========================
+        // SEARCH IMAGE
+        // ==========================
+
+        searchForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+
+                const searchName =
+                    searchInput.value.trim();
+
+
+                // Check search input
+                if (!searchName) {
+
+                    alert(
+                        "Please enter an image name."
+                    );
+
+                    return;
+                }
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            `/images/search?name=${encodeURIComponent(searchName)}`
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    // Check response
+                    if (!response.ok) {
+
+                        alert(
+                            data.error ||
+                            "Search failed."
+                        );
+
+                        return;
+                    }
+
+
+                    // Display search results
+                    displayImages(data);
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Search error:",
+                        error
+                    );
+
+
+                    gallery.innerHTML =
+                        "<p>Unable to search images.</p>";
+
+                }
+
+            }
+        );
+
+
+        // ==========================
+        // SHOW ALL IMAGES
+        // ==========================
+
+        showAllButton.addEventListener(
+            "click",
+            async function () {
+
+                searchInput.value = "";
+
+                await loadImages();
+
+            }
+        );
+
+
+        // ==========================
+        // DELETE IMAGE
+        // ==========================
+
+        async function deleteImage(filename) {
+
+
+            // Confirmation is still kept
+            const confirmDelete =
+                confirm(
+                    "Are you sure you want to delete " +
+                    filename +
+                    "?"
+                );
+
+
+            if (!confirmDelete) {
+
+                return;
+            }
 
 
             try {
 
                 const response =
                     await fetch(
-                        "/upload",
+                        `/images/${encodeURIComponent(filename)}`,
                         {
-                            method: "POST",
-                            body: formData
+                            method: "DELETE"
                         }
                     );
 
@@ -229,22 +539,17 @@
 
                     alert(
                         data.error ||
-                        "Upload failed."
+                        "Unable to delete image."
                     );
 
                     return;
                 }
 
 
-                // Success
-                alert(
-                    data.message ||
-                    "Image uploaded successfully!"
-                );
-
-
-                // Clear file input
-                imageInput.value = "";
+                // ==========================
+                // DELETE SUCCESS
+                // No success alert
+                // ==========================
 
 
                 // Refresh gallery
@@ -254,339 +559,29 @@
             } catch (error) {
 
                 console.error(
-                    "Upload error:",
+                    "Delete error:",
                     error
                 );
 
 
                 alert(
-                    "Upload failed. " +
+                    "Delete failed. " +
                     "Make sure the Flask server is running."
                 );
 
             }
 
         }
-    );
 
 
-    // ==========================
-    // LOAD ALL IMAGES
-    // ==========================
+        // ==========================
+        // LOAD GALLERY ON PAGE LOAD
+        // ==========================
 
-    async function loadImages() {
+        loadImages();
 
-        try {
 
-            const response =
-                await fetch("/images");
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    "Failed to load images: " +
-                    response.status
-                );
-
-            }
-
-
-            const images =
-                await response.json();
-
-
-            // Display images
-            displayImages(images);
-
-
-        } catch (error) {
-
-            console.error(
-                "Gallery error:",
-                error
-            );
-
-
-            gallery.innerHTML =
-                "<p>Unable to load images.</p>";
-
-        }
-
-    }
-
-
-    // ==========================
-    // DISPLAY IMAGES
-    // ==========================
-
-    function displayImages(images) {
-
-        // Clear gallery
-        gallery.innerHTML = "";
-
-
-        // No images
-        if (images.length === 0) {
-
-            gallery.innerHTML =
-                "<p>No images found.</p>";
-
-            return;
-        }
-
-
-        // Display images
-        images.forEach(function (image) {
-
-
-            const card =
-                document.createElement("div");
-
-
-            card.className =
-                "image-card";
-
-
-            // Image
-            const img =
-                document.createElement("img");
-
-
-            img.src =
-                image.url;
-
-
-            img.alt =
-                image.title;
-
-
-            // Title
-            const title =
-                document.createElement("p");
-
-
-            title.textContent =
-                image.title;
-
-
-            // Delete button
-            const deleteButton =
-                document.createElement("button");
-
-
-            deleteButton.textContent =
-                "Delete";
-
-
-            deleteButton.className =
-                "delete-btn";
-
-
-            // Delete button click
-            deleteButton.addEventListener(
-                "click",
-                function () {
-
-                    deleteImage(
-                        image.title
-                    );
-
-                }
-            );
-
-
-            // Add elements
-            card.appendChild(img);
-
-            card.appendChild(title);
-
-            card.appendChild(
-                deleteButton
-            );
-
-
-            // Add card
-            gallery.appendChild(card);
-
-        });
-
-    }
-
-
-    // ==========================
-    // SEARCH IMAGE
-    // ==========================
-
-    searchForm.addEventListener(
-        "submit",
-        async function (event) {
-
-            event.preventDefault();
-
-
-            const searchName =
-                searchInput.value.trim();
-
-
-            // Check search input
-            if (!searchName) {
-
-                alert(
-                    "Please enter an image name."
-                );
-
-                return;
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `/search?name=${encodeURIComponent(searchName)}`
-                    );
-
-
-                const data =
-                    await response.json();
-
-
-                // Check response
-                if (!response.ok) {
-
-                    alert(
-                        data.error ||
-                        "Search failed."
-                    );
-
-                    return;
-                }
-
-
-                // Display search results
-                displayImages(data);
-
-
-            } catch (error) {
-
-                console.error(
-                    "Search error:",
-                    error
-                );
-
-
-                gallery.innerHTML =
-                    "<p>Unable to search images.</p>";
-
-            }
-
-        }
-    );
-
-
-    // ==========================
-    // SHOW ALL IMAGES
-    // ==========================
-
-    showAllButton.addEventListener(
-        "click",
-        async function () {
-
-            searchInput.value = "";
-
-            await loadImages();
-
-        }
-    );
-
-
-    // ==========================
-    // DELETE IMAGE
-    // ==========================
-
-    async function deleteImage(filename) {
-
-
-        const confirmDelete =
-            confirm(
-                "Are you sure you want to delete " +
-                filename +
-                "?"
-            );
-
-
-        if (!confirmDelete) {
-
-            return;
-        }
-
-
-        try {
-
-            const response =
-                await fetch(
-                    `/delete/${encodeURIComponent(filename)}`,
-                    {
-                        method: "DELETE"
-                    }
-                );
-
-
-            const data =
-                await response.json();
-
-
-            // Check response
-            if (!response.ok) {
-
-                alert(
-                    data.error ||
-                    "Unable to delete image."
-                );
-
-                return;
-            }
-
-
-            // Success
-            alert(
-                data.message ||
-                "Image deleted successfully!"
-            );
-
-
-            // Refresh gallery
-            await loadImages();
-
-
-        } catch (error) {
-
-            console.error(
-                "Delete error:",
-                error
-            );
-
-
-            alert(
-                "Delete failed. " +
-                "Make sure the Flask server is running."
-            );
-
-        }
-
-    }
-
-
-    // ==========================
-    // LOAD GALLERY ON PAGE LOAD
-    // ==========================
-
-    loadImages();
-
-
-</script>
-```
+    </script>
 
 </body>
 
