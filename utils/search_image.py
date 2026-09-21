@@ -1,11 +1,8 @@
-def search_image(search_name, image_list):
+def search_image(search_name, images):
 
-    results = []
+    term = search_name.lower()
 
-    for image in image_list:
-
-        if search_name.lower() in image["title"].lower():
-
-            results.append(image)
-
-    return results
+    return [
+        image for image in images.values()
+        if term in image["original_filename"].lower()
+    ]
