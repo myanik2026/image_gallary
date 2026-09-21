@@ -13,7 +13,7 @@ app = Flask(__name__)
 CORS(app) 
  
 UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads') 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER 
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER         
 os.makedirs(UPLOAD_FOLDER, exist_ok=True) 
  
 JSON_FILE= "images.json"
