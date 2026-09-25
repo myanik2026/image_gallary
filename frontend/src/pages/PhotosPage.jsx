@@ -119,7 +119,7 @@ function PhotosPage() {
                       <ImageRoundedIcon fontSize="small" />
                     </Avatar>
                     <Typography noWrap sx={{ maxWidth: 420 }}>
-                      {image.original_filename || image.title}
+                      {image.original_filename}
                     </Typography>
                   </Box>
                 </TableCell>
@@ -127,7 +127,7 @@ function PhotosPage() {
                 <TableCell>{formatFileSize(image.size)}</TableCell>
                 <TableCell align="right">
                   <IconButton
-                    aria-label={`Delete ${image.original_filename || image.title}`}
+                    aria-label={`Delete ${image.original_filename}`}
                     onClick={() => handleDeleteClick(image)}
                   >
                     <DeleteOutlineRoundedIcon fontSize="small" />
@@ -152,7 +152,7 @@ function PhotosPage() {
         <DialogTitle>Delete photo?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            "{pendingDelete?.original_filename || pendingDelete?.title}" will be permanently
+            "{pendingDelete?.original_filename}" will be permanently
             deleted. This action cannot be undone.
           </DialogContentText>
           {deleteError && (
