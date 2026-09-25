@@ -1,23 +1,15 @@
 from flask import Flask, request, jsonify, render_template 
 from flask_cors import CORS 
 from utils.secure_filename import secure_filename 
-from utils.find_image import find_image
+
 import os 
 import json
-from utils.extension_allow import allowed_file
+
 from utils.delete_image import delete_image
 from utils.search_images import search_images
 from utils.upload_image import upload_image
-from werkzeug.utils import secure_filename
+
  
-app = Flask(__name__) 
-CORS(app) 
- 
-UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads') 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER         
-os.makedirs(UPLOAD_FOLDER, exist_ok=True) 
- 
-JSON_FILE= "images.json"
 
 app = Flask(__name__)
 CORS(app)
@@ -72,7 +64,7 @@ def upload_images():
 
 @app.route('/images/search', methods=['GET'])
 def search_images_route():
-    return search_images(
+    return search_image(
         request.args.get('name'),
         images
     )
@@ -83,7 +75,7 @@ def delete_image_route(filename):
     filename = secure_filename(filename)
 
     deleted = delete_image(
-        image_id,
+        filename,
         images,
         app.config['UPLOAD_FOLDER']
     )
