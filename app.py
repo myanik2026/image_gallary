@@ -56,7 +56,7 @@ def upload_images():
         request.files.get('image'),
         images,
         app.config['UPLOAD_FOLDER']
-    ) 
+    )
     if status_code == 201:
         save_images()
     return result, status_code

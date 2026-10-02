@@ -76,6 +76,14 @@
 
         }
 
+        #uploadMessage {
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            color: red;
+        }
+
+
 
         button {
             padding: 8px 15px;
@@ -118,7 +126,7 @@
 
     </form>
 
-
+    <p id="uploadMessage"></p>
     <!-- ==========================
          SEARCH FORM
     =========================== -->
@@ -176,6 +184,9 @@
         const gallery =
             document.getElementById("gallery");
 
+        const uploadMessage =
+             document.getElementById("uploadMessage");
+
         const filePath = "../static/uploads/"    
 
 
@@ -188,6 +199,8 @@
             async function (event) {
 
                 event.preventDefault();
+                
+                uploadMessage.textContent = ""; // Clear previous message
 
 
                 const file =
@@ -196,9 +209,10 @@
 
                 if (!file) {
 
-                    alert(
-                        "Please select an image."
-                    );
+                    uploadMessage.textContent =
+                        "Please select an image to upload.";
+
+                    uploadMessage.style.color = "red";
 
                     return;
                 }
@@ -234,10 +248,9 @@
                     // Check response
                     if (!response.ok) {
 
-                        alert(
-                            data.error ||
-                            "Upload failed."
-                        );
+                      uploadMessage.textContent = "File already uploaded.";// "Upload failed.";
+                      uploadMessage.style.color = "red";
+
 
                         return;
                     }
@@ -250,7 +263,10 @@
 
                     // Clear file input
                     imageInput.value = "";
+                    uploadMessage.textContent =
+                       "Image uploaded successfully.";
 
+                    uploadMessage.style.color = "green"; 
 
                     // Refresh gallery
                     await loadImages();
