@@ -70,6 +70,12 @@
             word-break: break-word;
         }
 
+        .upload-date {
+            font-size: 13px;
+            color: #666;
+
+        }
+
 
         button {
             padding: 8px 15px;
@@ -366,6 +372,21 @@
 
                 title.textContent =
                     image.filename.split(".")[0];
+                
+                // Upload Date & Time
+                const uploadDate = document.createElement("p");
+
+                uploadDate.className = "upload-date";
+
+                if (image.uploaded_at) {
+                    const date = new Date(image.uploaded_at);
+                    uploadDate.textContent =
+                    "Uploaded: " + date.toLocaleString();
+                } else {
+                    uploadDate.textContent =
+                    "Upload date/time not available";
+}
+
 
 
                 // Delete button
@@ -398,8 +419,11 @@
                 card.appendChild(title);
                 card.appendChild(img);
                 card.appendChild(
-                    deleteButton
+                    uploadDate
+                
                 );
+                card.appendChild(deleteButton);
+
 
 
                 // Add card

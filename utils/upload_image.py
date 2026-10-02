@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 from utils.search_images import search_images
 from utils.secure_filename import secure_filename
@@ -52,11 +53,14 @@ def upload_image(file, images, upload_folder):
     # Save image
     file.save(filepath)
 
+    upload_time = datetime.now().strftime("%d %b %Y, %I:%M %p")
 
     # Add image information
     images[filename] = {
         "filename": filename,
-        "size": os.path.getsize(filepath)
+        "size": os.path.getsize(filepath),
+        "uploaded_at": upload_time
+        
     }
 
 
@@ -64,7 +68,9 @@ def upload_image(file, images, upload_folder):
         "message": "Image uploaded!",
         "images": {
             "filename": filename,
-            "size": os.path.getsize(filepath)
+            "size": os.path.getsize(filepath),
+            "uploaded_at": datetime.now().isoformat()
+
         }
     }, 201
 

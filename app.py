@@ -9,8 +9,6 @@ from utils.delete_image import delete_image
 from utils.search_images import search_images
 from utils.upload_image import upload_image
 
- 
-
 app = Flask(__name__)
 CORS(app)
 
@@ -46,10 +44,11 @@ def save_images():
 @app.route('/') 
 def index(): 
     return render_template('index.html') 
- 
+
+
 @app.route('/images', methods=['GET']) 
 def get_images(): 
-    return jsonify(images) 
+    return jsonify(sorted(images.values(), key=lambda x: x['uploaded_at'], reverse=True))
  
 @app.route('/images', methods=['POST']) 
 def upload_images(): 
@@ -57,14 +56,14 @@ def upload_images():
         request.files.get('image'),
         images,
         app.config['UPLOAD_FOLDER']
-    )
+    ) 
     if status_code == 201:
         save_images()
     return result, status_code
 
 @app.route('/images/search', methods=['GET'])
 def search_images_route():
-    return search_image(
+    return search_images(
         request.args.get('name'),
         images
     )
