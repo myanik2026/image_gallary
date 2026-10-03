@@ -83,13 +83,21 @@ def upload_images():
         mime_type=file.mimetype
     )
 
+    
+
+
     db.session.add(new_image)
+    db.session.flush()
+    new_image.url = f"http://127.0.0.1:5000/image/{new_image.id}"
     db.session.commit()
+
 
     return jsonify({
         "message": "Image uploaded successfully",
         "id": new_image.id,
         "filename": new_image.filename,
+        "url": new_image.url,
+
         "uploaded_at": new_image.uploaded_at.strftime(
             "%Y-%m-%d %H:%M:%S"
         )
@@ -158,3 +166,4 @@ def get_image(image_id):
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000) 
+
