@@ -187,7 +187,6 @@
         const uploadMessage =
              document.getElementById("uploadMessage");
 
-        const filePath = "../static/uploads/"    
 
 
         // ==========================
@@ -348,7 +347,7 @@
 
 
             // No images
-            if (Object.keys(images).length === 0) {
+            if (images.length === 0) {
 
                 gallery.innerHTML =
                     "<p>No images found.</p>";
@@ -358,7 +357,7 @@
 
 
             // Display images
-            Object.values(images).forEach(function (image) {
+            images.forEach(function (image) {
 
 
                 const card =
@@ -374,7 +373,7 @@
                     document.createElement("img");
 
 
-                img.src = `${filePath}` + image.filename;
+                img.src = `/image/${image.id}`;
 
 
                 img.alt =
