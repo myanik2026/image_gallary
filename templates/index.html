@@ -116,8 +116,8 @@
             type="file"
             id="imageInput"
             name="image"
-            accept="image/png, image/jpeg"
-            required
+            accept="image/*" multiple
+            
         >
 
         <button type="submit">
@@ -202,11 +202,11 @@
                 uploadMessage.textContent = ""; // Clear previous message
 
 
-                const file =
-                    imageInput.files[0];
+                const files =
+                    imageInput.files;
 
 
-                if (!file) {
+                if (files.length === 0) {
 
                     uploadMessage.textContent =
                         "Please select an image to upload.";
@@ -216,15 +216,17 @@
                     return;
                 }
 
-
-                // Create FormData
-                const formData =
+                // Upload each selected data
+                let uploadedCount = 0;
+                for (const file of files) {
+                    
+                    const formData =
                     new FormData();
-
-
-                formData.append(
-                    "image",
-                    file
+                    
+                    
+                    formData.append(
+                        "image",
+                        file
                 );
 
 
@@ -247,49 +249,44 @@
                     // Check response
                     if (!response.ok) {
 
-                      uploadMessage.textContent = "File already uploaded.";// "Upload failed.";
+                      uploadMessage.textContent = file.name + "File already uploaded.";// "Upload failed.";
                       uploadMessage.style.color = "red";
 
 
-                        return;
+                        continue;
                     }
 
-
-                    // ==========================
-                    // UPLOAD SUCCESS
-                    // No success alert
-                    // ==========================
-
-                    // Clear file input
-                    imageInput.value = "";
-                    uploadMessage.textContent =
-                       "Image uploaded successfully.";
-
-                    uploadMessage.style.color = "green"; 
-
-                    // Refresh gallery
-                    await loadImages();
-
-
-                } catch (error) {
-
+                    uploadedCount++;
+}                   catch (error) {
+    
                     console.error(
                         "Upload error:",
                         error
                     );
-
-
-                    alert(
-                        "Upload failed. " +
-                        "Make sure the Flask server is running."
-                    );
+}
 
                 }
 
+                
+                    imageInput.value = "";
+
+                    if (uploadedCount > 0) {
+
+                        uploadMessage.textContent = 
+                        uploadedCount + 
+                        " image(s) uploaded successfully.";
+                        uploadMessage.style.color = "green";
+                    
+                    await loadImages();
+
+
+                }
             }
+
+        
         );
 
-
+        
         // ==========================
         // LOAD ALL IMAGES
         // ==========================
