@@ -1,9 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import {
   deleteImage as deleteImageRequest,
   getImages,
+  searchImages,
   uploadImage as uploadImageRequest,
 } from '../api/images'
+
+const SEARCH_DEBOUNCE_MS = 300
 
 const ImagesContext = createContext(null)
 
@@ -15,37 +18,62 @@ export function ImagesProvider({ children }) {
   const [uploading, setUploading] = useState(false)
   const [deletingId, setDeletingId] = useState(null)
 
-  const refresh = useCallback(async () => {
+  const requestIdRef = useRef(0)
+  const isFirstRun = useRef(true)
+
+  const fetchImages = useCallback(async (query) => {
+    const requestId = ++requestIdRef.current
     setLoading(true)
     setError(null)
     try {
-      const data = await getImages()
-      setImages(data)
+      const data = query ? await searchImages(query) : await getImages()
+      if (requestId === requestIdRef.current) setImages(data)
     } catch (err) {
-      setError(err.message || 'Failed to load images')
+      if (requestId === requestIdRef.current) {
+        setError(err.response?.data?.error || err.message || 'Failed to load images')
+      }
     } finally {
-      setLoading(false)
+      if (requestId === requestIdRef.current) setLoading(false)
     }
   }, [])
 
+  const refresh = useCallback(
+    () => fetchImages(searchQuery.trim()),
+    [fetchImages, searchQuery],
+  )
+
+  // Runs the search against the backend (debounced), and re-runs it whenever
+  // the query changes so /images/search stays the single source of truth.
   useEffect(() => {
-    refresh()
-  }, [refresh])
+    const query = searchQuery.trim()
 
-  const upload = useCallback(async (file) => {
-    setUploading(true)
-    setError(null)
-    try {
-      const created = await uploadImageRequest(file)
-      setImages((prev) => [created, ...prev])
-      return created
-    } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Failed to upload image')
-      throw err
-    } finally {
-      setUploading(false)
+    if (isFirstRun.current) {
+      isFirstRun.current = false
+      fetchImages(query)
+      return undefined
     }
-  }, [])
+
+    const handle = setTimeout(() => fetchImages(query), SEARCH_DEBOUNCE_MS)
+    return () => clearTimeout(handle)
+  }, [searchQuery, fetchImages])
+
+  const upload = useCallback(
+    async (file) => {
+      setUploading(true)
+      setError(null)
+      try {
+        const created = await uploadImageRequest(file)
+        await fetchImages(searchQuery.trim())
+        return created
+      } catch (err) {
+        setError(err.response?.data?.error || err.message || 'Failed to upload image')
+        throw err
+      } finally {
+        setUploading(false)
+      }
+    },
+    [fetchImages, searchQuery],
+  )
 
   const remove = useCallback(async (id) => {
     setDeletingId(id)
@@ -61,18 +89,9 @@ export function ImagesProvider({ children }) {
     }
   }, [])
 
-  const visibleImages = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase()
-    if (!query) return images
-    return images.filter((image) =>
-      (image.original_filename || '').toLowerCase().includes(query),
-    )
-  }, [images, searchQuery])
-
   const value = useMemo(
     () => ({
-      images: visibleImages,
-      allImagesCount: images.length,
+      images,
       loading,
       error,
       searchQuery,
@@ -83,18 +102,7 @@ export function ImagesProvider({ children }) {
       remove,
       deletingId,
     }),
-    [
-      visibleImages,
-      images.length,
-      loading,
-      error,
-      searchQuery,
-      refresh,
-      upload,
-      uploading,
-      remove,
-      deletingId,
-    ],
+    [images, loading, error, searchQuery, refresh, upload, uploading, remove, deletingId],
   )
 
   return <ImagesContext.Provider value={value}>{children}</ImagesContext.Provider>
