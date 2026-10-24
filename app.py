@@ -1,15 +1,21 @@
-from flask import Flask, request, jsonify, render_template 
+from flask import Flask, request, jsonify, render_template, session
 from flask_cors import CORS 
 from utils.secure_filename import secure_filename 
-from models import db, Image
- 
+from models import db, Image, User
+from utils.authentication import auth_bp
+from functools import wraps
+from flask import send_from_directory
+
 
 
 import os 
 
 
 app = Flask(__name__)
-CORS(app)
+app.config["SECRET_KEY"] = os.environ.get(
+    "FLASK_SECRET_KEY",
+    "change-this-to-a-long-random-secret"
+)
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:A123456s@localhost/image_gallery'
@@ -20,11 +26,25 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+# connect authtentication.py  
+
+app.register_blueprint(auth_bp)
+
+
+def login_required(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        if "user_id" not in session:
+            return jsonify({"error": "Please log in first"}), 401
+
+        return function(*args, **kwargs)
+
+    return wrapper
+
 
 UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
 
 
 @app.route('/') 
@@ -33,11 +53,11 @@ def index():
 
 
 @app.route('/images', methods=['GET'])
+@login_required
 def get_images():
-
-    images = Image.query.order_by(
-        Image.uploaded_at.desc()
-    ).all()
+    images = Image.query.filter_by(
+        user_id=session["user_id"]
+    ).order_by(Image.uploaded_at.desc()).all()
 
     return jsonify([
         {
@@ -50,72 +70,87 @@ def get_images():
         for image in images
     ])
 
+@app.route("/api/registered-emails", methods=["GET"])
+def registered_emails():
+    users = User.query.with_entities(User.email).order_by(
+        User.email.asc()
+    ).all()
+
+    return jsonify({
+        "emails": [user.email for user in users]
+    })
+
+
+
 
 @app.route('/images', methods=['POST'])
+@login_required
 def upload_images():
-
     file = request.files.get('image')
 
-    if file is None or file.filename == "":
-        return jsonify({
-            "error": "No image selected"
-        }), 400
+    if not file or not file.filename:
+        return jsonify({"message": "No image selected"}), 400
 
     filename = secure_filename(file.filename)
 
-    # Check if file already exists
-    existing_image = Image.query.filter_by(
-        filename=filename
+    if not filename:
+        return jsonify({"message": "Invalid filename"}), 400
+
+    allowed_extensions = {"png", "jpg", "jpeg", "gif", "webp"}
+
+    if "." not in filename or filename.rsplit(".", 1)[1].lower() not in allowed_extensions:
+        return jsonify({"message": "Unsupported image format"}), 400
+
+    existing = Image.query.filter_by(
+        filename=filename,
+        user_id=session["user_id"]
     ).first()
 
-    if existing_image:
+    if existing:
         return jsonify({
-            "error": "File already uploaded"
+            "message": f"{filename} has already been uploaded"
         }), 409
 
-    # Read the actual image
-    image_data = file.read()
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
 
-    # Store image in database
-    new_image = Image(
-        filename=filename,
-        image_data=image_data,
-        mime_type=file.mimetype
-    )
+    try:
+        file.save(file_path)
 
-    
-
-
-    db.session.add(new_image)
-    db.session.flush()
-    new_image.url = f"http://127.0.0.1:5000/image/{new_image.id}"
-    db.session.commit()
-
-
-    return jsonify({
-        "message": "Image uploaded successfully",
-        "id": new_image.id,
-        "filename": new_image.filename,
-        "url": new_image.url,
-
-        "uploaded_at": new_image.uploaded_at.strftime(
-            "%Y-%m-%d %H:%M:%S"
+        new_image = Image(
+            filename=filename,
+            mime_type=file.mimetype or "application/octet-stream",
+            user_id=session["user_id"]
         )
-    }), 201
 
+        db.session.add(new_image)
+        db.session.commit()
+
+        return jsonify({
+            "message": "Image uploaded successfully",
+            "id": new_image.id,
+            "filename": new_image.filename
+        }), 201
+
+    except Exception:
+        db.session.rollback()
+
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
+        app.logger.exception("Image upload failed")
+
+        return jsonify({
+            "message": "Upload failed because of a server or database error"
+        }), 500
 
 
 @app.route('/images/search', methods=['GET'])
+@login_required
 def search_images_route():
 
     name = request.args.get('name', '')
 
-    images = Image.query.filter(
-        Image.filename.ilike(f"%{name}%")
-    ).order_by(
-        Image.uploaded_at.desc()
-    ).all()
-
+    images = Image.query.filter(Image.filename.ilike(f"%{name}%")).order_by(Image.uploaded_at.desc()).all()
     return jsonify([
         {
             "id": image.id,
@@ -129,15 +164,15 @@ def search_images_route():
 
 
 
-@app.route('/images/<filename>', methods=['DELETE'])
-def delete_image_route(filename):
-
-    filename = secure_filename(filename)
-
+@app.route('/images/<int:image_id>', methods=['DELETE'])
+@login_required
+def delete_image_route(image_id):
+    
     image = Image.query.filter_by(
-        filename=filename
+        id=image_id,
+        user_id=session["user_id"]
     ).first()
-
+    
     if not image:
         return jsonify({
             "error": "Image not found"
@@ -154,15 +189,17 @@ def delete_image_route(filename):
 
 
 @app.route('/image/<int:image_id>')
+@login_required
 def get_image(image_id):
+    image = Image.query.filter_by(
+        id=image_id,
+        user_id=session["user_id"]
+    ).first_or_404()
 
-    image = Image.query.get_or_404(image_id)
-
-    return image.image_data, 200, {
-        'Content-Type': image.mime_type
-
-    }
-
+    return send_from_directory(
+        app.config["UPLOAD_FOLDER"],
+        image.filename
+    )
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000) 

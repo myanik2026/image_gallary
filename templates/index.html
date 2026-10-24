@@ -1,624 +1,1115 @@
 
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Image Upload</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
 
         body {
+            margin: 0;
             font-family: Arial, sans-serif;
-            margin: 40px;
+            background: #f3f5f9;
+            color: #1f2937;
         }
 
-
-        h1 {
-            margin-bottom: 20px;
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 18px 7%;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
         }
 
-
-        #uploadForm {
-            margin-bottom: 20px;
+        .brand {
+            font-size: 23px;
+            font-weight: 700;
+            color: #2563eb;
         }
 
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
 
-        #searchForm {
+        .container {
+            width: min(1100px, 92%);
+            margin: 35px auto;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h1 {
+            margin: 0 0 8px;
+            font-size: 30px;
+        }
+
+        .welcome p {
+            margin: 0;
+            color: #64748b;
+        }
+
+        .auth-layout {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 24px;
+            max-width: 850px;
+            margin: 35px auto;
+        }
+
+        .panel {
+            padding: 25px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            box-shadow: 0 5px 20px rgba(15, 23, 42, 0.04);
+        }
+
+        .panel h2 {
+            margin: 0 0 8px;
+            font-size: 22px;
+        }
+
+        .panel-description {
+            margin: 0 0 22px;
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 17px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        input,
+        select {
+            display: block;
+            width: 100%;
+            min-height: 44px;
+            padding: 11px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #1f2937;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 11px 16px;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .full-button {
+            width: 100%;
+            min-height: 44px;
+        }
+
+        .secondary-button {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .secondary-button:hover {
+            background: #cbd5e1;
+        }
+
+        .danger-button {
+            background: #dc2626;
+        }
+
+        .danger-button:hover {
+            background: #b91c1c;
+        }
+
+        .message {
+            display: none;
+            margin-top: 14px;
+            padding: 11px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .message.success {
+            display: block;
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .message.error {
+            display: block;
+            color: #991b1b;
+            background: #fee2e2;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin: 30px 0 18px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+            font-size: 23px;
+        }
+
+        .upload-panel {
             margin-bottom: 30px;
         }
 
-
-        #searchInput {
-            padding: 8px;
-            width: 250px;
-        }
-
-
-        #gallery {
+        .upload-form {
             display: flex;
+            align-items: end;
+            gap: 14px;
             flex-wrap: wrap;
-            gap: 20px;
-            margin-top: 20px;
         }
 
+        .upload-form .form-group {
+            flex: 1;
+            min-width: 220px;
+            margin: 0;
+        }
+
+        .upload-form button {
+            min-height: 44px;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 22px;
+        }
 
         .image-card {
-            width: 200px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 10px;
+            min-width: 0;
+            overflow: hidden;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
         }
-
 
         .image-card img {
+            display: block;
             width: 100%;
-            height: 150px;
+            height: 200px;
             object-fit: cover;
-            border-radius: 5px;
+            background: #e2e8f0;
         }
 
-
-        .image-card p {
-            word-break: break-word;
+        .image-details {
+            padding: 14px;
         }
 
-        .upload-date {
+        .image-name {
+            margin: 0 0 8px;
+            font-size: 15px;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+        .image-date {
+            margin: 0 0 14px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .image-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .image-actions button {
+            padding: 9px 12px;
+        }
+
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            color: #64748b;
+            background: #ffffff;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+        }
+
+        footer {
+            padding: 25px;
+            text-align: center;
+            color: #64748b;
             font-size: 13px;
-            color: #666;
-
         }
 
-        #uploadMessage {
-            margin-top: 10px;
-            font-size: 14px;
-            font-weight: bold;
-            color: red;
+        @media (max-width: 760px) {
+            .auth-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            header {
+                padding: 16px 4%;
+            }
+
+            .container {
+                margin-top: 25px;
+            }
         }
 
+        @media (max-width: 480px) {
+            .gallery {
+                grid-template-columns: 1fr;
+            }
 
+            .section-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
 
-        button {
-            padding: 8px 15px;
-            cursor: pointer;
+            .header-user {
+                gap: 8px;
+            }
+
+            .brand {
+                font-size: 19px;
+            }
+
+            .panel {
+                padding: 19px;
+            }
         }
-
-
-        .delete-btn {
-            margin-top: 10px;
-            width: 100%;
-        }
-
     </style>
-
 </head>
 
-
 <body>
+    <header>
+        <div class="brand">Image Gallery</div>
 
-    <h1>Upload Image</h1>
+        <div id="headerUser" class="header-user hidden">
+            <span id="welcomeUser"></span>
+            <button id="logoutButton" class="secondary-button" type="button">
+                Logout
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="welcome">
+            <h1>Your Personal Gallery</h1>
+            <p>Register or log in to upload and manage your images.</p>
+        </section>
+
+        <section id="authSection" class="auth-layout">
+            <div class="panel">
+                <h2>Create Account</h2>
+                <p class="panel-description">
+                    Register with a username, email address and password.
+                </p>
+
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="regUsername">Username</label>
+                        <input
+                            type="text"
+                            id="regUsername"
+                            name="username"
+                            placeholder="Enter your username"
+                            autocomplete="username"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regEmail">Email Address</label>
+                        <input
+                            type="email"
+                            id="regEmail"
+                            name="email"
+                            placeholder="Enter your email"
+                            autocomplete="email"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regPassword">Password</label>
+                        <input
+                            type="password"
+                            id="regPassword"
+                            name="password"
+                            placeholder="Minimum 8 characters"
+                            autocomplete="new-password"
+                            minlength="8"
+                            required
+                        >
+                    </div>
+
+                    <button class="full-button" type="submit">
+                        Create Account
+                    </button>
+
+                    <div id="registerMessage" class="message"></div>
+                </form>
+            </div>
+
+            <div class="panel">
+                <h2>Welcome Back</h2>
+                <p class="panel-description">
+                    Select your registered email and enter your password.
+                </p>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Registered Email</label>
+                        <select id="loginEmail" name="email" required>
+                            <option value="">Loading registered emails...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input
+                            type="password"
+                            id="loginPassword"
+                            name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+                    </div>
+
+                    <button class="full-button" type="submit">
+                        Login
+                    </button>
 
 
-    <!-- ==========================
-         UPLOAD FORM
-    =========================== -->
 
-    <form id="uploadForm">
+                    
+<p style="text-align: right; margin: 12px 0;">
+    <a href="#" id="forgotPasswordLink"
+       style="color: #2563eb; text-decoration: none;">
+        Forgot password?
+    </a>
+</p>
 
-        <input
-            type="file"
-            id="imageInput"
-            name="image"
-            accept="image/*" multiple
-            
-        >
 
-        <button type="submit">
-            Upload
-        </button>
 
+<div id="forgotPasswordSection" class="hidden">
+    <form id="forgotPasswordForm">
+        <label for="forgotEmail">Registered Email</label>
+        <input type="email" id="forgotEmail" required>
+
+        <button type="submit">Send Reset Link</button>
+        <div id="forgotMessage" class="message"></div>
     </form>
+</div>
 
-    <p id="uploadMessage"></p>
-    <!-- ==========================
-         SEARCH FORM
-    =========================== -->
 
-    <form id="searchForm">
 
-        <input
-            type="text"
-            id="searchInput"
-            placeholder="Search image name..."
-        >
 
-        <button type="submit">
-            Search
-        </button>
+<div id="resetPasswordSection" class="hidden">
+    <form id="resetPasswordForm">
+        <label for="newPassword">New Password</label>
+        <input type="password" id="newPassword" minlength="8" required>
 
-        <button
-            type="button"
-            id="showAllButton"
-        >
-            Show All
-        </button>
+        <label for="confirmPassword">Confirm Password</label>
+        <input type="password" id="confirmPassword" minlength="8" required>
 
+        <button type="submit">Reset Password</button>
+        <div id="resetMessage" class="message"></div>
     </form>
+</div>
 
 
-    <h2>Gallery</h2>
+<div id="resetPasswordSection" class="hidden">
+    <form id="resetPasswordForm">
+        <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input
+                type="password"
+                id="newPassword"
+                minlength="8"
+                autocomplete="new-password"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input
+                type="password"
+                id="confirmPassword"
+                minlength="8"
+                autocomplete="new-password"
+                required
+            >
+        </div>
+
+                id="forgotEmail"
+                placeholder="Enter your registered email"
+                required
+            >
+        </div>
+
+        <button type="submit" class="full-button">
+            Send Reset Link
+        </button>
+
+        <div id="forgotMessage" class="message"></div>
+    </form>
+</div>
+
+<div id="resetPasswordSection" class="hidden">
+    <form id="resetPasswordForm">
+        <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input
+                type="password"
+                id="newPassword"
+                minlength="8"
+                autocomplete="new-password"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input
+                type="password"
+                id="confirmPassword"
+                minlength="8"
+                autocomplete="new-password"
+                required
+            >
+        </div>
+
+        <button type="submit" class="full-button">
+            Reset Password
+        </button>
+
+        <div id="resetMessage" class="message"></div>
+    </form>
+</div>
 
 
-    <div id="gallery"></div>
 
+                    <div id="loginMessage" class="message"></div>
+                </form>
+            </div>
+        </section>
+
+        <section id="gallerySection" class="hidden">
+            <div class="panel upload-panel">
+                <h2>Upload Image</h2>
+                <p class="panel-description">
+                    Choose a PNG, JPG, JPEG, GIF or WEBP image up to 10 MB.
+                </p>
+
+                <form id="uploadForm" class="upload-form">
+                    <div class="form-group">
+                        <label for="imageFile">Choose Image</label>
+                        <input
+                            type="file"
+                            id="imageFile"
+                            name="image"
+                            accept=".png,.jpg,.jpeg,.gif,.webp,image/png,image/jpeg,image/gif,image/webp"
+                            multiple
+                            required
+                        >
+                    </div>
+
+                    <button id="uploadButton" type="submit">
+                        Upload Image
+                    </button>
+                </form>
+
+                <div id="uploadMessage" class="message"></div>
+            </div>
+
+            <div class="section-heading">
+                <h2>My Images</h2>
+                <button id="refreshButton" class="secondary-button" type="button">
+                    Refresh Gallery
+                </button>
+            </div>
+
+            <div id="gallery" class="gallery"></div>
+
+            <div id="emptyState" class="empty-state hidden">
+                <h3>No images yet</h3>
+                <p>Upload your first image to see it here.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        Image Gallery &copy; 2026
+    </footer>
 
     <script>
+        const authSection = document.getElementById("authSection");
+        const gallerySection = document.getElementById("gallerySection");
+        const headerUser = document.getElementById("headerUser");
+        const welcomeUser = document.getElementById("welcomeUser");
 
+        const registerForm = document.getElementById("registerForm");
+        const loginForm = document.getElementById("loginForm");
+        const uploadForm = document.getElementById("uploadForm");
 
-        // ==========================
-        // GET HTML ELEMENTS
-        // ==========================
+        const loginEmail = document.getElementById("loginEmail");
+        const loginPassword = document.getElementById("loginPassword");
+        const imageFile = document.getElementById("imageFile");
 
-        const uploadForm =
-            document.getElementById("uploadForm");
+        const gallery = document.getElementById("gallery");
+        const emptyState = document.getElementById("emptyState");
 
-        const imageInput =
-            document.getElementById("imageInput");
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
 
-        const searchForm =
-            document.getElementById("searchForm");
-
-        const searchInput =
-            document.getElementById("searchInput");
-
-        const showAllButton =
-            document.getElementById("showAllButton");
-
-        const gallery =
-            document.getElementById("gallery");
-
-        const uploadMessage =
-             document.getElementById("uploadMessage");
-
-
-
-        // ==========================
-        // UPLOAD IMAGE
-        // ==========================
-
-        uploadForm.addEventListener(
-            "submit",
-            async function (event) {
-
-                event.preventDefault();
-                
-                uploadMessage.textContent = ""; // Clear previous message
-
-
-                const files =
-                    imageInput.files;
-
-
-                if (files.length === 0) {
-
-                    uploadMessage.textContent =
-                        "Please select an image to upload.";
-
-                    uploadMessage.style.color = "red";
-
-                    return;
-                }
-
-                // Upload each selected data
-                let uploadedCount = 0;
-                for (const file of files) {
-                    
-                    const formData =
-                    new FormData();
-                    
-                    
-                    formData.append(
-                        "image",
-                        file
-                );
-
-
-                try {
-
-                    const response =
-                        await fetch(
-                            "/images",
-                            {
-                                method: "POST",
-                                body: formData
-                            }
-                        );
-
-
-                    const data =
-                        await response.json();
-
-
-                    // Check response
-                    if (!response.ok) {
-
-                      uploadMessage.textContent = file.name + "File already uploaded.";// "Upload failed.";
-                      uploadMessage.style.color = "red";
-
-
-                        continue;
-                    }
-
-                    uploadedCount++;
-}                   catch (error) {
-    
-                    console.error(
-                        "Upload error:",
-                        error
-                    );
-}
-
-                }
-
-                
-                    imageInput.value = "";
-
-                    if (uploadedCount > 0) {
-
-                        uploadMessage.textContent = 
-                        uploadedCount + 
-                        " image(s) uploaded successfully.";
-                        uploadMessage.style.color = "green";
-                    
-                    await loadImages();
-
-
-                }
-            }
-
-        
-        );
-
-        
-        // ==========================
-        // LOAD ALL IMAGES
-        // ==========================
-
-        async function loadImages() {
-
-            try {
-
-                const response =
-                    await fetch("/images");
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        "Failed to load images: " +
-                        response.status
-                    );
-
-                }
-
-
-                const images =
-                    await response.json();
-
-
-                // Display images
-                displayImages(images);
-
-
-            } catch (error) {
-
-                console.error(
-                    "Gallery error:",
-                    error
-                );
-
-
-                gallery.innerHTML =
-                    "<p>Unable to load images.</p>";
-
-            }
-
+            element.textContent = message;
+            element.className = "message " + type;
         }
 
+        function clearMessage(elementId) {
+            const element = document.getElementById(elementId);
 
-        // ==========================
-        // DISPLAY IMAGES
-        // ==========================
+            element.textContent = "";
+            element.className = "message";
+        }
 
-        function displayImages(images) {
+        async function readResponse(response) {
+            const data = await response.json().catch(() => ({}));
 
-            // Clear gallery
-            gallery.innerHTML = "";
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Something went wrong. Please try again."
+                );
+            }
 
+            return data;
+        }
 
-            // No images
-            if (images.length === 0) {
+        async function loadRegisteredEmails(selectedEmail = "") {
+            const previousEmail = selectedEmail || loginEmail.value;
 
-                gallery.innerHTML =
-                    "<p>No images found.</p>";
+            loginEmail.replaceChildren();
 
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = "Select your registered email";
+            loginEmail.appendChild(placeholder);
+
+            try {
+                const response = await fetch("/api/registered-emails");
+                const data = await readResponse(response);
+
+                data.emails.forEach((email) => {
+                    const option = document.createElement("option");
+
+                    option.value = email;
+                    option.textContent = email;
+
+                    loginEmail.appendChild(option);
+                });
+
+                if (previousEmail) {
+                    loginEmail.value = previousEmail;
+                }
+
+                if (!loginEmail.value) {
+                    loginEmail.value = "";
+                }
+            } catch (error) {
+                showMessage(
+                    "loginMessage",
+                    "Could not load registered emails. " + error.message,
+                    "error"
+                );
+            }
+        }
+
+        registerForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            clearMessage("registerMessage");
+
+            const username = document.getElementById("regUsername").value.trim();
+            const email = document.getElementById("regEmail").value.trim();
+            const password = document.getElementById("regPassword").value;
+
+            try {
+                const response = await fetch("/register", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await readResponse(response);
+
+                showMessage(
+                    "registerMessage",
+                    data.message + ". You can now log in.",
+                    "success"
+                );
+
+                registerForm.reset();
+
+                await loadRegisteredEmails(email.toLowerCase());
+                loginPassword.focus();
+            } catch (error) {
+                showMessage("registerMessage", error.message, "error");
+            }
+        });
+
+        loginForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            clearMessage("loginMessage");
+
+            const email = loginEmail.value;
+            const password = loginPassword.value;
+
+            if (!email) {
+                showMessage(
+                    "loginMessage",
+                    "Please select a registered email.",
+                    "error"
+                );
                 return;
             }
 
+            try {
+                const response = await fetch("/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
 
-            // Display images
-            images.forEach(function (image) {
+                const data = await readResponse(response);
+
+                loginForm.reset();
+                await showLoggedIn(data.user);
+            } catch (error) {
+                showMessage("loginMessage", error.message, "error");
+            }
+        });
+
+        async function showLoggedIn(user) {
+            authSection.classList.add("hidden");
+            gallerySection.classList.remove("hidden");
+            headerUser.classList.remove("hidden");
+
+            welcomeUser.textContent = "Hello, " + user.username;
+
+            clearMessage("loginMessage");
+
+            await loadGallery();
+        }
+
+        function showLoggedOut() {
+            authSection.classList.remove("hidden");
+            gallerySection.classList.add("hidden");
+            headerUser.classList.add("hidden");
+
+            welcomeUser.textContent = "";
+            gallery.replaceChildren();
+            emptyState.classList.add("hidden");
+
+            uploadForm.reset();
+            clearMessage("uploadMessage");
+        }
+
+        document.getElementById("logoutButton").addEventListener(
+            "click",
+            async () => {
+                try {
+                    const response = await fetch("/logout", {
+                        method: "POST"
+                    });
+
+                    await readResponse(response);
+                    showLoggedOut();
+                    await loadRegisteredEmails();
+                } catch (error) {
+                    alert(error.message);
+                }
+            }
+        );
 
 
-                const card =
-                    document.createElement("div");
+        
+uploadForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    clearMessage("uploadMessage");
+
+    const files = Array.from(imageFile.files);
+
+    if (files.length === 0) {
+        showMessage("uploadMessage", "Please select at least one image.", "error");
+        return;
+    }
+
+    const uploadButton = document.getElementById("uploadButton");
+    uploadButton.disabled = true;
+
+    let uploaded = 0;
+    const errors = [];
+
+    try {
+        for (const file of files) {
+            uploadButton.textContent = `Uploading ${uploaded + 1}/${files.length}...`;
+
+            const formData = new FormData();
+            formData.append("image", file);
+
+            try {
+                const response = await fetch("/images", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || data.error || "Upload failed");
+                }
+
+                uploaded++;
+            } catch (error) {
+                errors.push(`${file.name}: ${error.message}`);
+            }
+        }
+
+        if (uploaded > 0) {
+            await loadGallery();
+        }
+
+        if (errors.length === 0) {
+            showMessage(
+                "uploadMessage",
+                `Successfully uploaded ${uploaded} image(s).`,
+                "success"
+            );
+            uploadForm.reset();
+        } else {
+            showMessage(
+                "uploadMessage",
+                `${uploaded} uploaded, ${errors.length} failed. ${errors.join(" | ")}`,
+                "error"
+            );
+        }
+    } finally {
+        uploadButton.disabled = false;
+        uploadButton.textContent = "Upload Image";
+    }
+});
 
 
-                card.className =
-                    "image-card";
-
-
-                // Image
-                const img =
-                    document.createElement("img");
-
-
-                img.src = `/image/${image.id}`;
-
-
-                img.alt =
-                    image.filename;
-
-
-                // Title
-                const title =
-                    document.createElement("p");
-
-
-                title.textContent =
-                    image.filename.split(".")[0];
-                
-                // Upload Date & Time
-                const uploadDate = document.createElement("p");
-
-                uploadDate.className = "upload-date";
-
-                if (image.uploaded_at) {
-                    const date = new Date(image.uploaded_at);
-                    uploadDate.textContent =
-                    "Uploaded: " + date.toLocaleString();
-                } else {
-                    uploadDate.textContent =
-                    "Upload date/time not available";
-}
 
 
 
-                // Delete button
-                const deleteButton =
-                    document.createElement("button");
 
 
-                deleteButton.textContent =
-                    "Delete";
 
 
-                deleteButton.className =
-                    "delete-btn";
 
 
-                // Delete button click
-                deleteButton.addEventListener(
-                    "click",
-                    function () {
 
-                        deleteImage(
-                            image.filename
-                        );
+       
 
+
+
+
+
+
+
+
+
+
+        
+async function loadGallery() {
+    gallery.replaceChildren();
+    emptyState.classList.add("hidden");
+
+    try {
+        const response = await fetch("/images");
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.message || "Unable to load images."
+            );
+        }
+
+        const images = Array.isArray(data)
+            ? data
+            : Array.isArray(data.images)
+                ? data.images
+                : Array.isArray(data.data)
+                    ? data.data
+                    : [];
+
+        if (images.length === 0) {
+            emptyState.classList.remove("hidden");
+            return;
+        }
+
+        images.forEach((image) => {
+            const card = document.createElement("article");
+            card.className = "image-card";
+
+            const img = document.createElement("img");
+            img.src = image.url || `/image/${image.id}`;
+            img.alt = image.filename || "Gallery image";
+            img.loading = "lazy";
+
+            const details = document.createElement("div");
+            details.className = "image-details";
+
+            const name = document.createElement("p");
+            name.className = "image-name";
+            name.textContent = image.filename || "Untitled image";
+
+            const date = document.createElement("p");
+            date.className = "image-date";
+            date.textContent = image.uploaded_at
+                ? "Uploaded: " + image.uploaded_at
+                : "";
+
+            const actions = document.createElement("div");
+            actions.className = "image-actions";
+
+            const deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.className = "danger-button";
+            deleteButton.textContent = "Delete";
+
+            deleteButton.addEventListener("click", async () => {
+                if (!confirm("Are you sure you want to delete this image?")) {
+                    return;
+                }
+
+                try {
+                    const deleteResponse = await fetch(
+                        `/images/${image.id}`,
+                        { method: "DELETE" }
+                    );
+
+                    const result = await deleteResponse.json();
+
+                    if (!deleteResponse.ok) {
+                        throw new Error(
+    `Delete failed (${deleteResponse.status}): ${
+        result.message || "Check the Flask delete route."
+    }`
+);
                     }
-                );
 
-
-                // Add elements
-                card.appendChild(title);
-                card.appendChild(img);
-                card.appendChild(
-                    uploadDate
-                
-                );
-                card.appendChild(deleteButton);
-
-
-
-                // Add card
-                gallery.appendChild(card);
-
+                    showMessage("uploadMessage", result.message, "success");
+                    await loadGallery();
+                } catch (error) {
+                    showMessage("uploadMessage", error.message, "error");
+                }
             });
 
-        }
+            actions.appendChild(deleteButton);
+            details.append(name, date, actions);
+            card.append(img, details);
+            gallery.appendChild(card);
+        });
+    } catch (error) {
+        showMessage("uploadMessage", error.message, "error");
+    }
+}
 
 
-        // ==========================
-        // SEARCH IMAGE
-        // ==========================
+                
 
-        searchForm.addEventListener(
-            "submit",
-            async function (event) {
-
-                event.preventDefault();
-
-
-                const searchName =
-                    searchInput.value.trim();
-
-
-                // Check search input
-                if (!searchName) {
-
-                    alert(
-                        "Please enter an image name."
-                    );
-
-                    return;
-                }
-
-
-                try {
-
-                    const response =
-                        await fetch(
-                            `/images/search?name=${encodeURIComponent(searchName)}`
-                        );
-
-
-                    const data =
-                        await response.json();
-
-
-                    // Check response
-                    if (!response.ok) {
-
-                        alert(
-                            data.error ||
-                            "Search failed."
-                        );
-
-                        return;
-                    }
-
-
-                    // Display search results
-                    displayImages(data);
-
-
-                } catch (error) {
-
-                    console.error(
-                        "Search error:",
-                        error
-                    );
-
-
-                    gallery.innerHTML =
-                        "<p>Unable to search images.</p>";
-
-                }
-
-            }
-        );
-
-
-        // ==========================
-        // SHOW ALL IMAGES
-        // ==========================
-
-        showAllButton.addEventListener(
+        document.getElementById("refreshButton").addEventListener(
             "click",
-            async function () {
-
-                searchInput.value = "";
-
-                await loadImages();
-
-            }
+            loadGallery
         );
 
-
-        // ==========================
-        // DELETE IMAGE
-        // ==========================
-
-        async function deleteImage(filename) {
-
-
-            // Confirmation is still kept
-            const confirmDelete =
-                confirm(
-                    "Are you sure you want to delete " +
-                    filename +
-                    "?"
-                );
-
-
-            if (!confirmDelete) {
-
-                return;
-            }
-
-
+        async function checkLogin() {
             try {
+                const response = await fetch("/me");
 
-                const response =
-                    await fetch(
-                        `/images/${encodeURIComponent(filename)}`,
-                        {
-                            method: "DELETE"
-                        }
-                    );
-
-
-                const data =
-                    await response.json();
-
-
-                // Check response
                 if (!response.ok) {
-
-                    alert(
-                        data.error ||
-                        "Unable to delete image."
-                    );
-
+                    showLoggedOut();
                     return;
                 }
 
-
-                // ==========================
-                // DELETE SUCCESS
-                // No success alert
-                // ==========================
-
-
-                // Refresh gallery
-                await loadImages();
-
-
+                const data = await response.json();
+                await showLoggedIn(data.user);
             } catch (error) {
-
-                console.error(
-                    "Delete error:",
-                    error
-                );
-
-
-                alert(
-                    "Delete failed. " +
-                    "Make sure the Flask server is running."
-                );
-
+                showLoggedOut();
             }
-
         }
 
+        document.addEventListener("DOMContentLoaded", async () => {
+            await loadRegisteredEmails();
+            await checkLogin();
+        });
 
-        // ==========================
-        // LOAD GALLERY ON PAGE LOAD
-        // ==========================
 
-        loadImages();
+
+        
+const forgotSection = document.getElementById("forgotPasswordSection");
+const resetSection = document.getElementById("resetPasswordSection");
+
+document.getElementById("forgotPasswordLink").addEventListener("click", (event) => {
+    event.preventDefault();
+    forgotSection.classList.toggle("hidden");
+    resetSection.classList.add("hidden");
+
+    document.getElementById("forgotEmail").value = loginEmail.value;
+});
+
+document.getElementById("forgotPasswordForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    try {
+        const response = await fetch("/api/forgot-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                email: document.getElementById("forgotEmail").value.trim()
+            })
+        });
+
+        const data = await response.json();
+
+        showMessage(
+            "forgotMessage",
+            data.message || "Request completed.",
+            response.ok ? "success" : "error"
+        );
+    } catch (error) {
+        showMessage("forgotMessage", error.message, "error");
+    }
+});
+
+const resetToken = new URLSearchParams(location.search).get("reset_token");
+
+if (resetToken) {
+    authSection.classList.remove("hidden");
+    gallerySection.classList.add("hidden");
+    headerUser.classList.add("hidden");
+
+    document.getElementById("loginForm").classList.add("hidden");
+    document.getElementById("registerForm").classList.add("hidden");
+
+    forgotSection.classList.add("hidden");
+    resetSection.classList.remove("hidden");
+}
+
+document.getElementById("resetPasswordForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const password = document.getElementById("newPassword").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+
+    if (password !== confirmPassword) {
+        showMessage("resetMessage", "Passwords do not match.", "error");
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/reset-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                token: resetToken,
+                password: password
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Password reset failed.");
+        }
+
+        showMessage("resetMessage", data.message, "success");
+        document.getElementById("resetPasswordForm").reset();
+
+        history.replaceState({}, document.title, "/");
+
+        setTimeout(() => {
+            resetSection.classList.add("hidden");
+            document.getElementById("loginForm").classList.remove("hidden");
+            document.getElementById("registerForm").classList.remove("hidden");
+            loginEmail.value = document.getElementById("forgotEmail").value;
+        }, 1500);
+    } catch (error) {
+        showMessage("resetMessage", error.message, "error");
+    }
+});
+
+
+
+
+
+
 
 
     </script>
-
 </body>
-
 </html>
